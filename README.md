@@ -11,7 +11,7 @@ npm i small-state-react
 
 ## Usage
 
-### './small-state-react'
+### Import from "./small-state-react"
 
 #### `useRuntime(machine, options?)`
 
@@ -31,7 +31,7 @@ npm i small-state-react
 - The compare argument is a function that compares the old and new values of the selection. If true, they are considered identical and re-rendering is suppressed. If false, the update is applied. If omitted, identity comparison (===) is used.
 
 
-### './small-state-react/jotai'
+### Import from "./small-state-react/jotai"
 
 #### `atomWithRuntimeSnapshot(machine, options?)`
 

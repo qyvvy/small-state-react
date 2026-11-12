@@ -10,7 +10,7 @@ npm i small-state-react
 
 ## Usage
 
-### './small-state-react'
+### Import from "./small-state-react"
 
 #### `useRuntime(machine, options?)`
 
@@ -30,7 +30,7 @@ npm i small-state-react
 - 引数 compare は selection の旧値と新値を比較する関数である。 true なら同一と見なし再レンダリングを抑制する。 false なら更新を反映する。省略時は `===` による同一性比較である。
 
 
-### './small-state-react/jotai'
+### Import from "./small-state-react/jotai"
 
 #### `atomWithRuntimeSnapshot(machine, options?)`
 
