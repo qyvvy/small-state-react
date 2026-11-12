@@ -5,7 +5,7 @@
 ## Installation
 
 ```
-npm i small-state
+npm i small-state-react
 ```
 
 ## Usage
