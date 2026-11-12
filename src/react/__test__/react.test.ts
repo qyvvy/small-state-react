@@ -1,25 +1,19 @@
-import { act, renderHook } from '@testing-library/react'
-import { StrictMode } from 'react'
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, jest, mock, test } from 'bun:test'
+import { act, renderHook } from '@testing-library/react'
 import { makeMachine, makeRuntime } from 'small-state'
 import { useRuntime } from '../useRuntime'
 import { useSelectedSnapshot } from '../useSelectedSnapshot'
 
-
 describe('react', () => {
   describe('useRuntime', () => {
-    let mockFn1: jest.Mock
-    beforeAll(async () => {
-      mockFn1 = jest.fn()
-    })
-
     {
-      const machine = makeMachine({}, ({ on }) => ([[], {
-        a: [
-          on('1', { to: 'b' })
-        ],
-        b: [{ final: () => 'finished' }]
-      }]))
+      const machine = makeMachine({}, ({ on }) => [
+        [],
+        {
+          a: [on('1', { to: 'b' })],
+          b: [{ final: () => 'finished' }],
+        },
+      ])
 
       test('0:ステート遷移しても古い snapshot は変更されない', async () => {
         const { result } = renderHook(() => useRuntime(machine))
@@ -39,14 +33,15 @@ describe('react', () => {
     }
 
     {
-      const machine = makeMachine({
-        initContext: () => ({ name: '' })
-      }, ({ on }) => ({
-        a: [
-          on('1', { actions: ({ update }) => update({ name: 'John' }) })
-        ],
-        b: null,
-      }))
+      const machine = makeMachine(
+        {
+          initContext: () => ({ name: '' }),
+        },
+        ({ on }) => ({
+          a: [on('1', { actions: ({ update }) => update({ name: 'John' }) })],
+          b: null,
+        }),
+      )
       test('0:コンテキスト更新しても古い snapshot は変更されない', async () => {
         const { result } = renderHook(() => useRuntime(machine))
         const { snapshot, send } = result.current
@@ -62,51 +57,49 @@ describe('react', () => {
     }
   })
 
-  describe.todo('useSelectedSnapshot', () => {
+  describe('useSelectedSnapshot', () => {
     type User = { name: string; age: number }
-    const machine = makeMachine({
-      types: { events: {} as { type: '1' } | { type: '2', user: User } | { type: '3' } },
-      initContext: () => ({ user: null as User | null, count: 0 })
-    }, ({ on }) => ({
-      a: [
-        on('1', { actions: [({ update, c }) => update({ count: c.count + 1 })] }),
-        on('2', { actions: [({ update, e }) => update({ user: e.user }), () => console.log(`DBG:100: `,)] }),
-        on('3', { to: 'b' }),
-      ],
-      b: [],
-    }))
+    const machine = makeMachine(
+      {
+        types: { events: {} as { type: '1' } | { type: '2'; user: User } | { type: '3' } },
+        initContext: () => ({ user: null as User | null, count: 0 }),
+      },
+      ({ on }) => ({
+        a: [
+          on('1', { actions: [({ update, c }) => update({ count: c.count + 1 })] }),
+          on('2', { actions: [({ update, e }) => update({ user: e.user })] }),
+          on('3', { to: 'b' }),
+        ],
+        b: [],
+      }),
+    )
 
-    test('0:', async () => {
+    test('0:コンテキストの一部だけを購読する', async () => {
       const rt = makeRuntime(machine).start()
 
-      const x = renderHook(() => useSelectedSnapshot(rt, (snapshot) => {
-        return snapshot.context.user
-      }))
-      const snapshot1 = x.result.current
+      const { result } = renderHook(() =>
+        useSelectedSnapshot(rt, (snapshot) => {
+          return snapshot.context.user
+        }),
+      )
+      const snapshot1 = result.current
       expect(snapshot1).toEqual(null)
 
-      rt.send({ type: '1' })
-      const xx = renderHook(() => useSelectedSnapshot(rt, (snapshot) => {
-        return snapshot.context.user
-      }))
-      const snapshot2 = xx.result.current
+      act(() => rt.send({ type: '1' }))
+      const snapshot2 = result.current
       expect(snapshot2).toEqual(null)
 
-      rt.send({ type: '2', user: { name: 'John', age: 19 } })
-      const xxx = renderHook(() => useSelectedSnapshot(rt, (snapshot) => {
-        return snapshot.context.user
-      }))
-      const snapshot3 = xxx.result.current
+      act(() => rt.send({ type: '2', user: { name: 'John', age: 19 } }))
+      const snapshot3 = result.current
       expect(snapshot3).toEqual({ name: 'John', age: 19 })
 
-      rt.send({ type: '1' })
-      const xxxx = renderHook(() => useSelectedSnapshot(rt, (snapshot) => {
-        return snapshot.context.user
-      }))
-      const snapshot4 = xxxx.result.current
+      act(() => rt.send({ type: '1' }))
+      const snapshot4 = result.current
       expect(snapshot4).toBe(snapshot3)
 
+      act(() => rt.send({ type: '3' }))
+      const snapshot5 = result.current
+      expect(snapshot5).toBe(snapshot4)
     })
-
   })
 })
