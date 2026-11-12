@@ -21,15 +21,12 @@ npm i small-state
 - 逆にオプションはインラインで指定してもランタイムが作り直されないことに注意。
 
 
-#### `useSelectedSnapshot(machineOrRuntime, selector)`
+#### `useSelectedSnapshot(runtime, selector, compare?)`
 
-`<M extends AnyMachine, Sel>(machine: M, options?: RuntimeOptions<M>, selector: (snapshot: Snapshot<M>)=>Sel, compare?: (prev: Sel, next:Sel)=>boolean) => Sel`
+`<M extends AnyMachine, Sel>(runtime: Runtime<M>, selector: (snapshot: Snapshot<M>)=>Sel, compare?: (current: Sel, next: Sel)=>boolean) => Sel`
 
-`<M extends AnyMachine, Sel>(runtime: Runtime<M>, selector: (snapshot: Snapshot<M>)=>Sel, compare?: (prev: Sel, next: Sel)=>boolean) => Sel`
-
-- マシンかランタイムを受け取り、`selector` で加工したスナップショットを返す。
+- ランタイムを受け取り、そのランタイムのスナップショットを `selector` で加工したスナップショットを返す。
   - スナップショットの一部の値だけ利用・監視したいときなどに使う。
-- マシンを指定した場合はランタイムとして起動する。直後の引数でランタイムに渡すオプションを指定できる。
 - 引数 compare は selection の旧値と新値を比較する関数である。 true なら同一と見なし再レンダリングを抑制する。 false なら更新を反映する。省略時は `===` による同一性比較である。
 
 
