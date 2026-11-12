@@ -1,0 +1,6 @@
+[alias]
+"@" = "./src"
+
+[test]
+root = "src"
+preload = [ "./bun-test-preload--happydom.ts", "./bun-test-preload--rtl.ts"]
