@@ -14,11 +14,12 @@ npm i small-state-react
 
 #### `useRuntime(machine, options?)`
 
-`<M extends AnyMachine>(machine: M, options?: RuntimeOptions<M>) => {snapshot, send, runtime}`
+`<M extends AnyMachine>(machine: M, options?: RuntimeOptions<M> & { onPreStart?: (runtime: Runtime<M>) => void }) => {snapshot, send, runtime}`
 
 - マシンを受け取り、ランタイムとして start させ、 `{snapshot, send, runtime}` のオブジェクトを返す。
-- マシンは参照が変わると作り直されるので makeMachine をインラインで定義するのでなくいったん変数に束縛しそれを指定する必要がある。
-- 逆にオプションはインラインで指定してもランタイムが作り直されないことに注意。
+- オプション引数は一番最初の呼び出しに与えられた引数のみが使われる。インラインで指定されて参照が変わっても同一の値と見なすためである。
+- オプション `onPreStart` はランタイムが start される直前に実行されるフック関数であり、マシンから作られたランタイムを引数に受け取る。
+  - `.onEmitted` や `.subscribe` を実行するのに使うと良い。
 
 
 #### `useSelectedSnapshot(runtime, selector, compare?)`
@@ -34,8 +35,10 @@ npm i small-state-react
 
 #### `atomWithRuntimeSnapshot(machine, options?)`
 
-`<M extends AnyMachine>(machine: M | ((get:Getter)=>M), options?: RuntimeOptions<M>) => WritableAtom<Snapshot<M>, [event: SendFnEvent<M>], void>`
+`<M extends AnyMachine>(machine: M | ((get:Getter)=>M), options?: RuntimeOptions<M> & { onPreStart?: (runtime: Runtime<M>) => void }) => WritableAtom<Snapshot<M>, [event: SendFnEvent<M>], void>`
 
 - 指定したマシンについての atom を返す。
   - これはどこかでマウントされたときランタイム化され起動される。どこにもマウントされなくなったとき、このランタイムは破棄される。
 - `useAtom` に渡して戻ってくる値は `[snapshot, send]` である。
+- オプション `onPreStart` はランタイムが start される直前に実行されるフック関数であり、マシンから作られたランタイムを引数に受け取る。
+  - `.onEmitted` や `.subscribe` を実行するのに使うと良い。
