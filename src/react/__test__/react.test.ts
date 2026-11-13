@@ -15,6 +15,13 @@ describe('react', () => {
         },
       ])
 
+      test('0:onPreStart にruntime が与えられて呼ばれる', async () => {
+        const mockFn = jest.fn()
+        const { result } = renderHook(() => useRuntime(machine, { onPreStart: mockFn }))
+        expect(mockFn).toHaveBeenCalled()
+        expect(mockFn).toHaveBeenCalledWith(result.current.runtime)
+      })
+
       test('0:ステート遷移しても古い snapshot は変更されない', async () => {
         const { result } = renderHook(() => useRuntime(machine))
         const { snapshot, send } = result.current

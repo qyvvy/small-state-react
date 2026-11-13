@@ -18,6 +18,16 @@ describe('jotai', () => {
         }),
       )
 
+      test('0:マウントされると onPreStart が呼ばれる', async () => {
+        const mockFn = jest.fn()
+        const atom = atomWithRuntimeSnapshot(machine, { onPreStart: mockFn })
+        expect(mockFn).not.toHaveBeenCalled()
+
+        const { result } = renderHook(() => useAtom(atom))
+        expect(mockFn).toHaveBeenCalled()
+        expect(mockFn).toHaveBeenCalledWith(result.current[0]._runtime)
+      })
+
       test('0:ステート遷移', async () => {
         const atom = atomWithRuntimeSnapshot(machine)
         const { result, unmount } = renderHook(() => useAtom(atom))
