@@ -7,7 +7,7 @@ export const FINALIZE_EVENT = Symbol()
 
 export function atomWithRuntimeSnapshot<M extends AnyMachine>(
   machine: M | ((get: Getter) => M),
-  options?: RuntimeOptions<M>,
+  options?: RuntimeOptions<M> & { onPreStart?: (runtime: Runtime<M>) => void },
 ) {
   const rtCacheAtom = atom<Runtime<M> | null>(null)
   const snapshotAtom = atom<Snapshot<M> | null>(null)
@@ -39,6 +39,7 @@ export function atomWithRuntimeSnapshot<M extends AnyMachine>(
         set(rtCacheAtom, rt)
         const sync = () => set(snapshotAtom, rt.getSnapshot())
         const unsubscribe: () => void = rt.subscribe(sync, sync)
+        options?.onPreStart?.(rt)
         rt.start()
         sync()
         return unsubscribe
