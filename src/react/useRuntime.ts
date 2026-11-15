@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useSyncExternalStore } from 'react'
-import type { AnyMachine, Runtime, RuntimeOptions } from 'small-state'
+import type { AnyMachine, Runtime, RuntimeOptions, SendFnEvent } from 'small-state'
 import { isMachine, makeRuntime } from 'small-state'
 
 export function useRuntime<M extends AnyMachine>(
@@ -31,5 +31,9 @@ export function useRuntime<M extends AnyMachine>(
     }
   }, [runtime, qOptions])
 
-  return { snapshot, send: runtime.send.bind(runtime), runtime }
+  return {
+    snapshot,
+    send: (event: SendFnEvent<M>) => void runtime.send.apply(runtime, [event]),
+    runtime
+  }
 }
