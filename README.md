@@ -33,15 +33,15 @@ npm i small-state-react
 
 - Return value: `RuntimeHandle<M>: {snapshot, send, runtime, useBoundSend}` - An object containing properties for accessing and interacting with the runtime's current state.
   - `snapshot: Snapshot<M>` - The runtime's current snapshot. It contains properties such as context, states, and runtimeStatus. See the small-state Snapshot documentation for details.
-    - `send: (event: SendFnEvent<M>) => undefined` - Sends an event to the runtime.
-      - Defining an inline callback such as `onChange={() => send({ type: 'foo' })}` creates a new function on every render, which may cause the receiving object to be updated each time. If the event is always the same and you want to avoid this, you can use `useBoundSend` (described below) to create a function with a fixed event and use it as the event handler instead.
-    - `runtime: Runtime<M>` - The runtime instance itself.
-    - `useBoundSend: (event: SendFnEvent<M>) => () => undefined`
-      - **NOTE: This is an experimental feature and may be unstable.**
-      - This function takes an event object and returns a send function bound to that event. In other words, it behaves similarly to calling `.bind` on send with the specified event. However, the returned function retains the same reference across renders, helping prevent unnecessary re-renders when passed to components.
-        - This is useful when you need a function that can be passed directly to an event handler.
-      - The event provided on the first call is used. Any changes to the event object on subsequent calls are ignored.
-      - Since this function is treated as a React Hook, it is subject to the Rules of Hooks. In particular, it must not be called inside conditional statements or other conditional branches.
+  - `send: (event: SendFnEvent<M>) => undefined` - Sends an event to the runtime.
+    - Defining an inline callback such as `onChange={() => send({ type: 'foo' })}` creates a new function on every render, which may cause the receiving object to be updated each time. If the event is always the same and you want to avoid this, you can use `useBoundSend` (described below) to create a function with a fixed event and use it as the event handler instead.
+  - `runtime: Runtime<M>` - The runtime instance itself.
+  - `useBoundSend: (event: SendFnEvent<M>) => () => undefined`
+    - **NOTE: This is an experimental feature and may be unstable.**
+    - This function takes an event object and returns a send function bound to that event. In other words, it behaves similarly to calling `.bind` on send with the specified event. However, the returned function retains the same reference across renders, helping prevent unnecessary re-renders when passed to components.
+      - This is useful when you need a function that can be passed directly to an event handler.
+    - The event provided on the first call is used. Any changes to the event object on subsequent calls are ignored.
+    - Since this function is treated as a React Hook, it is subject to the Rules of Hooks. In particular, it must not be called inside conditional statements or other conditional branches.
 
 
 #### `useSelectedSnapshot(runtime, selector, compare?)`
