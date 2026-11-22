@@ -1,11 +1,11 @@
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, jest, mock, test } from 'bun:test'
 import { act, renderHook } from '@testing-library/react'
 import { makeMachine, makeRuntime } from 'small-state'
-import { useRuntime } from '../useRuntime'
+import { useRuntimeHandle } from '../useRuntimeHandle'
 import { useSelectedSnapshot } from '../useSelectedSnapshot'
 
 describe('react', () => {
-  describe('useRuntime', () => {
+  describe('useRuntimeHandle', () => {
     {
       const machine = makeMachine({}, ({ on }) => [
         [],
@@ -17,13 +17,13 @@ describe('react', () => {
 
       test('0:onPreStart にruntime が与えられて呼ばれる', async () => {
         const mockFn = jest.fn()
-        const { result } = renderHook(() => useRuntime(machine, { onPreStart: mockFn }))
+        const { result } = renderHook(() => useRuntimeHandle(machine, { onPreStart: mockFn }))
         expect(mockFn).toHaveBeenCalled()
         expect(mockFn).toHaveBeenCalledWith(result.current.runtime)
       })
 
       test('0:ステート遷移しても古い snapshot は変更されない', async () => {
-        const { result } = renderHook(() => useRuntime(machine))
+        const { result } = renderHook(() => useRuntimeHandle(machine))
         const { snapshot, send } = result.current
         expect(snapshot.stateValue).toBe('/a')
 
@@ -36,6 +36,19 @@ describe('react', () => {
         expect(snapshot2.runtimeStatus).toBe('done')
         // TODO: TBC: output にはこういうとき、渡されないのが正しい仕様だったか確認
         //expect(snapshot2.output).toBe('finished')
+      })
+
+      test('0:useBoundSend', async () => {
+        const { result } = renderHook(() => useRuntimeHandle(machine))
+        const { snapshot, useBoundSend } = result.current
+        expect(snapshot.stateValue).toBe('/a')
+
+        const { result: sendType1 } = renderHook(() => useBoundSend({ type: '1' }))
+        act(() => sendType1.current())
+
+        const snapshot2 = result.current.snapshot
+        expect(snapshot2.stateValue).toBe('/b')
+        expect(snapshot2.runtimeStatus).toBe('done')
       })
     }
 
@@ -50,7 +63,7 @@ describe('react', () => {
         }),
       )
       test('0:コンテキスト更新しても古い snapshot は変更されない', async () => {
-        const { result } = renderHook(() => useRuntime(machine))
+        const { result } = renderHook(() => useRuntimeHandle(machine))
         const { snapshot, send } = result.current
         expect(snapshot.stateValue).toBe('/a')
         expect(snapshot.context).toEqual({ name: '' })
