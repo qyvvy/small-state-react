@@ -56,10 +56,11 @@ export function useRuntimeHandle<M extends AnyMachine>(
     snapshot = useSyncExternalStore(subscribe, getSnapshot, getSnapshot)
   }
 
-  return {
-    snapshot,
-    send: (event: SendFnEvent<M>) => void runtime.send.apply(runtime, [event]),
-    runtime,
-    useBoundSend: readyToUseBoundSend(rtRef),
-  }
+  const handle = useRef({} as RuntimeHandle<M>).current
+  handle.snapshot = snapshot
+  handle.send = (event: SendFnEvent<M>) => void runtime.send.apply(runtime, [event])
+  handle.runtime = runtime
+  handle.useBoundSend = readyToUseBoundSend(rtRef)
+
+  return handle
 }
