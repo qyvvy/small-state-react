@@ -27,11 +27,14 @@ export function useRuntimeHandle<M extends AnyMachine>(
     rtRef.current = makeRuntime(machine, options)
   }
 
+  const retRef = useRef({} as RuntimeHandle<M>)
+
   // biome-ignore lint/correctness/useExhaustiveDependencies: Uses only the arguments passed on the initial call.
   useEffect(() => {
     // <StrictMode> で二度呼ばれたとき用の対策
     if (rtRef.current!.runtimeStatus === 'stopped') {
       rtRef.current = makeRuntime(machine, options)
+      retRef.current = {} as RuntimeHandle<M>
     }
     const crrRt = rtRef.current!
     options?.onPreStart?.(crrRt)
@@ -56,11 +59,11 @@ export function useRuntimeHandle<M extends AnyMachine>(
     snapshot = useSyncExternalStore(subscribe, getSnapshot, getSnapshot)
   }
 
-  const handle = useRef({} as RuntimeHandle<M>).current
-  handle.snapshot = snapshot
-  handle.send = (event: SendFnEvent<M>) => void runtime.send.apply(runtime, [event])
-  handle.runtime = runtime
-  handle.useBoundSend = readyToUseBoundSend(rtRef)
+  const ret = retRef.current
+  ret.snapshot = snapshot
+  ret.send = (event: SendFnEvent<M>) => void runtime.send.apply(runtime, [event])
+  ret.runtime = runtime
+  ret.useBoundSend = readyToUseBoundSend(rtRef)
 
-  return handle
+  return ret
 }
