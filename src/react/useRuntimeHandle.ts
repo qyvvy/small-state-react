@@ -8,6 +8,13 @@ function readyToUseBoundSend<M extends AnyMachine>(rtRef: React.RefObject<Runtim
   return (event: SendFnEvent<M>) => useRef(() => void rtRef.current!.send(event)).current
 }
 
+/**
+ * @typedef {Object} RuntimeHandle
+ * @property {Object} snapshot
+ * @property {function(string|{type: string, [key: string]: *}): undefined} send
+ * @property {Object} runtime
+ * @property {function(string|{type: string, [key: string]: *}): function(): undefined} useBoundSend
+ */
 export type RuntimeHandle<M extends AnyMachine> = {
   snapshot: Snapshot<M>
   send: (event: SendFnEvent<M>) => undefined
@@ -15,6 +22,14 @@ export type RuntimeHandle<M extends AnyMachine> = {
   useBoundSend: UseBoundSend<M>
 }
 
+/**
+ * @param machine
+ * @param {Object} [options]
+ * @param {string} [options.id]
+ * @param {function(): *} [options.input]
+ * @param {function} [options.onPreStart]
+ * @returns {RuntimeHandle}
+ */
 export function useRuntimeHandle<M extends AnyMachine>(
   machine: M,
   options?: RuntimeOptions<M> & { onPreStart?: (runtime: Runtime<M>) => void },

@@ -5,6 +5,13 @@ import { makeRuntime } from 'small-state'
 
 export const FINALIZE_EVENT = Symbol()
 
+/**
+ * @param machine
+ * @param {Object} [options]
+ * @param {string} [options.id]
+ * @param {function(): *} [options.input]
+ * @param {function} [options.onPreStart]
+ */
 export function atomWithRuntimeSnapshot<M extends AnyMachine>(
   machine: M | ((get: Getter) => M),
   options?: RuntimeOptions<M> & { onPreStart?: (runtime: Runtime<M>) => void },
