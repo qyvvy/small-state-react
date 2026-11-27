@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useSyncExternalStore } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useSyncExternalStore } from 'react'
 import type { AnyMachine, Runtime, RuntimeOptions, SendFnEvent, Snapshot } from 'small-state'
 import { isMachine, makeRuntime } from 'small-state'
 
@@ -76,9 +76,9 @@ export function useRuntimeHandle<M extends AnyMachine>(
 
   const ret = retRef.current
   ret.snapshot = snapshot
-  ret.send = (event: SendFnEvent<M>) => void runtime.send.apply(runtime, [event])
+  ret.send = useCallback((event: SendFnEvent<M>) => void runtime.send.apply(runtime, [event]), [runtime])
   ret.runtime = runtime
-  ret.useBoundSend = readyToUseBoundSend(rtRef)
+  ret.useBoundSend = useMemo(() => readyToUseBoundSend(rtRef), [])
 
   return ret
 }

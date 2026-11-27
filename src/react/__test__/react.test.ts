@@ -38,6 +38,21 @@ describe('react', () => {
         //expect(snapshot2.output).toBe('finished')
       })
 
+      test('0:rerender 後の参照の同一性', async () => {
+        const { result, rerender } = renderHook(() => useRuntimeHandle(machine))
+        const handle1 = result.current
+        const { runtime, send, snapshot, useBoundSend } = handle1
+
+        rerender()
+
+        const handle2 = result.current
+        expect(handle1).toBe(handle2)
+        expect(runtime).toBe(handle2.runtime)
+        expect(send).toBe(handle2.send)
+        expect(snapshot).toBe(handle2.snapshot)
+        expect(useBoundSend).toBe(handle2.useBoundSend)
+      })
+
       test('0:useBoundSend', async () => {
         const { result } = renderHook(() => useRuntimeHandle(machine))
         const { snapshot, useBoundSend } = result.current
