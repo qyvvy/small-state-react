@@ -1,6 +1,6 @@
 {
   "name": "small-state-react",
-  "version": "0.2.2",
+  "version": "0.2.4",
   "description": "React and Jotai bindings for small-state, a lightweight state machine library.",
   "author": "qyvvy",
   "license": "MIT",

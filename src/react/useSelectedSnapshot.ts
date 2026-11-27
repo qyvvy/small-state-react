@@ -4,6 +4,11 @@ import { useSyncExternalStoreWithSelector } from 'use-sync-external-store/with-s
 
 const DEFAULT_COMPARE = <T>(a: T, b: T) => a === b
 
+/**
+ * @param runtime
+ * @param {function} selector
+ * @param {function} [compare]
+ */
 export function useSelectedSnapshot<M extends AnyMachine, Sel>(
   runtime: Runtime<M> | undefined,
   selector: (snapshot: Snapshot<M>) => Sel,

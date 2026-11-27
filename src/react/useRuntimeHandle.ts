@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useSyncExternalStore } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useSyncExternalStore } from 'react'
 import type { AnyMachine, Runtime, RuntimeOptions, SendFnEvent, Snapshot } from 'small-state'
 import { isMachine, makeRuntime } from 'small-state'
 
@@ -8,6 +8,13 @@ function readyToUseBoundSend<M extends AnyMachine>(rtRef: React.RefObject<Runtim
   return (event: SendFnEvent<M>) => useRef(() => void rtRef.current!.send(event)).current
 }
 
+/**
+ * @typedef {Object} RuntimeHandle
+ * @property {Object} snapshot
+ * @property {function(string|{type: string, [key: string]: *}): undefined} send
+ * @property {Object} runtime
+ * @property {function(string|{type: string, [key: string]: *}): function(): undefined} useBoundSend
+ */
 export type RuntimeHandle<M extends AnyMachine> = {
   snapshot: Snapshot<M>
   send: (event: SendFnEvent<M>) => undefined
@@ -15,6 +22,14 @@ export type RuntimeHandle<M extends AnyMachine> = {
   useBoundSend: UseBoundSend<M>
 }
 
+/**
+ * @param machine
+ * @param {Object} [options]
+ * @param {string} [options.id]
+ * @param {function(): *} [options.input]
+ * @param {function} [options.onPreStart]
+ * @returns {RuntimeHandle}
+ */
 export function useRuntimeHandle<M extends AnyMachine>(
   machine: M,
   options?: RuntimeOptions<M> & { onPreStart?: (runtime: Runtime<M>) => void },
@@ -61,9 +76,9 @@ export function useRuntimeHandle<M extends AnyMachine>(
 
   const ret = retRef.current
   ret.snapshot = snapshot
-  ret.send = (event: SendFnEvent<M>) => void runtime.send.apply(runtime, [event])
+  ret.send = useCallback((event: SendFnEvent<M>) => void runtime.send.apply(runtime, [event]), [runtime])
   ret.runtime = runtime
-  ret.useBoundSend = readyToUseBoundSend(rtRef)
+  ret.useBoundSend = useMemo(() => readyToUseBoundSend(rtRef), [])
 
   return ret
 }
